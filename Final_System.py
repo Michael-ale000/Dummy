@@ -26,7 +26,7 @@ conn = snowflake.connector.connect(
     account =  ACCOUNT,
     warehouse = WAREHOUSE,
     database = "DETENTIONDATA",
-    schema = "PUBLIC",
+    schema = "DETENTIONDATA",
     role = "ACCOUNTADMIN"
 )
 # pd.set_option('display.max_rows', None)
@@ -75,7 +75,22 @@ def sanitize(name: str) -> str:
     Convert 'Table 1' → 'TABLE_1', and ensure valid table name.
     """
     return name.strip().replace(" ", "_").upper() if name else ""
-def store_in_db1(dfs: dict):
+def store_in_db1(dfs: dict,user,password,schema):
+    USER = user
+    PASSWORD = password
+    WAREHOUSE = "COMPUTE_WH"
+    ACCOUNT = "vqkklwj-nn52820"
+    SCHEMA = schema
+    SNOWFLAKE_DATABASE = "DETENTIONDATA"
+    conn = snowflake.connector.connect(
+        user = USER,
+        password = PASSWORD,
+        account =  ACCOUNT,
+        warehouse = WAREHOUSE,
+        database = "DETENTIONDATA",
+        schema = schema,
+        role = "ACCOUNTADMIN"
+    )
     print(f"🔍 {len(dfs)} tables found: {list(dfs.keys())}")
 
     conn.autocommit = True

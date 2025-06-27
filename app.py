@@ -120,15 +120,17 @@ if uploaded_file is not None:
             "Table 6": df6,
             "Table 8": df8
         }
+        username = st.text_input("Snowflake Username")
+        password = st.text_input("Snowflake Password", type="password")
+        schema = st.text_input("Snowflake Database", value="PUBLIC")
         if st.button("📤 Upload to Snowflake"):
-            store_in_db1(transformed_tables)
+            store_in_db1(transformed_tables,username, password,schema)
             st.success("Data uploaded to Snowflake successfully!")
         sender_email = st.text_input("Your Email Address")
         sender_password = st.text_input("Your Email Password / App Password", type="password")
         recipient_email = st.text_input("Recipient Email")
         subject = st.text_input("Subject", value="Table data from ICE Detention System")
         if st.button("Send Email"):
-            
             sender_email = sender_email
             sender_password = sender_password
             recipient_email = recipient_email

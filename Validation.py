@@ -43,7 +43,7 @@ def validate_table_1(df):
     clean_df1 = df.copy()
     report = {
         "row_corrections":[],
-        "summary_corrections":{},
+        "summary_correction":{},
     }
     total_row = clean_df1[clean_df1['Processing Disposition']=='Total']
     data_rows = clean_df1[clean_df1['Processing Disposition'] != 'Total']
@@ -79,7 +79,7 @@ def validate_table_1(df):
             reported_sum = clean_df1.at[total_idx,col]
             if expected_sum != reported_sum:
                 clean_df1.at[total_idx,col] = expected_sum
-                report["summary_corrections"][col] = {
+                report["summary_correction"][col] = {
                     "reported": reported_sum,
                     "corrected": expected_sum
                 }
@@ -88,6 +88,8 @@ def validate_table_1(df):
 def validate_table_2(df):
     df = df.head(1).copy()
     df.columns = df.columns.str.strip().str.replace(r'\s+',' ',regex=True)
+    df['FSC'] = df['FSC'].fillna(0)
+    df['Adult'] = df['Adult'].fillna(0)
     all_cols = ['FSC', 'Adult', 'Total']
     if 'FSC' in df.columns:
         cols_to_check = all_cols
@@ -99,8 +101,7 @@ def validate_table_2(df):
     clean_df2 = df
     report_of_table_2 = {
         "Table Name":'Table 2',
-        "row_correction":[],
-        "summary_correction":{},
+        "row_correction":[]
     }
     # Get 'Adult' value, fallback to 0 if missing or NaN
     adult = df['Adult'].iat[0] if 'Adult' in df.columns and pd.notna(df['Adult'].iat[0]) else 0
@@ -119,12 +120,12 @@ def validate_table_2(df):
     return df,report_of_table_2
 def validate_table_3(df):
     df.columns = df.columns.str.strip().str.replace(r'\s+',' ',regex=True)
+    df['Total Detained'] = df['Total Detained'].fillna(0)
     total_idx = df[df['Detention Facility Type'] == 'Total'].index[0]
     data_idx = df[df['Detention Facility Type'] != 'Total'].index
     report_of_table_3 = {
         "Table Name":'Table 3',
-        "row_correction":[],
-        "summary_correction":{},
+        "row_correction":[]
     }
     cols_to_check = ['Total Detained']
     for col in cols_to_check:
@@ -222,7 +223,7 @@ def validate_table_5(df):
             reported = df.at[total_idx, col]
             if pd.isna(reported) or abs(expected - reported) > 1e-6:
                 df.at[total_idx, col] = expected
-                report_of_table_5['summary_corrections'][col] = {
+                report_of_table_5['summary_correction'][col] = {
                     'Column':col,
                     'expected': expected,
                     'reported': reported,
@@ -231,6 +232,11 @@ def validate_table_5(df):
     print("Table 5 validated")
     return df,report_of_table_5
 def validate_table_6(df):
+    df.columns = df.columns.str.strip().str.replace(r'\s+',' ',regex=True)
+    df['Convicted Criminal'] = df['Convicted Criminal'].fillna(0)
+    df['Pending Criminal Charges'] = df['Pending Criminal Charges'].fillna(0)
+    df['Other Immigration Violator'] = df['Other Immigration Violator'].fillna(0)
+    df['Total'] = df['Total'].fillna(0)
     total_idx = df[df['Facility Type']=='Total'].index[0]
     data_rows_idx = df[df['Facility Type'] != 'Total'].index
     report_of_table_6 = {
@@ -258,11 +264,11 @@ def validate_table_6(df):
         reported = df.at[total_idx, col]
         if expected != reported:
             df.at[total_idx, col] = expected
-            report_of_table_6['summary_correction'][col].append({
+            report_of_table_6['summary_correction'][col]={
                 'Column':col,
                 'expected': expected,
                 'reported': reported,
-                })
+                }
             print(f"✅ Columns: {col} : Total corrected from {reported} to {expected}")
     print("Validated Table 6")
     return df,report_of_table_6
@@ -272,16 +278,16 @@ def validate_table_7(df):
     report_of_table_7 = {
         "Table Name":'Table 7',
         "row_correction":[],
-        "summary_correction":{},
+        "summary_correction":{}
     }
     expected_total = df.loc[data_rows_idx,'Total'].sum()
     reported_total = df.at[total_idx,'Total']
     if expected_total != reported_total:
         df.at[total_idx,'Total'] = expected_total
-        report_of_table_7['summary_correction'].append({
+        report_of_table_7['summary_correction']={
             'expected_total': expected_total,
             'reported_total': reported_total
-        })
+        }
         print(f"Column Total: Total changes from {reported_total} to {expected_total}")
     print('validated table 7')
     return df,report_of_table_7
@@ -305,8 +311,7 @@ def validate_table_15(df):
     data_idx = df.index
     report_of_table_15 = {
         "Table Name":'Table 15',
-        "row_correction":[],
-        "summary_correction":{},
+        "row_correction":[]
     }
     for idx in data_idx:
        monthly_values = [df.at[idx, col] if not pd.isna(df.at[idx, col]) else 0 
@@ -328,8 +333,7 @@ def validate_table_16(df):
     data_idx = df.index
     report_of_table_16 = {
         "Table Name":'Table 16',
-        "row_correction":[],
-        "summary_correction":{},
+        "row_correction":[]
     }
     for idx in data_idx:
         monthly_values = [df.at[idx, col] if not pd.isna(df.at[idx, col]) else 0 for col in ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']]
